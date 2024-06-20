@@ -1,11 +1,21 @@
 # 使用 connect_device 来连接任意Android/iOS设备或者Windows窗口。
-#
 # 使用 模拟操作 的API来自动化你的游戏或者App。
-#
 # 千万 不要 忘记 声明断言 来验证测试结果。
 
 import time
 from airtest.core.api import *
+
+class funname():
+    def __init__(self, uuid):
+        self.uuid = uuid
+        pass
+
+    def funa(self):
+        pass
+
+
+if '__name__' == '__main__':
+    print('ss')
 
 # 链接设备
 # 设备uuid
