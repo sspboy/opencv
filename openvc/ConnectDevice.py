@@ -21,7 +21,7 @@ class Operationphoto():
         # res = start_app("com.netease.cloudmusic")
         return res
 
-    def fun_name(self):
+    def fun_name(self): # 设备截图
         pass
 
 

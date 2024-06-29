@@ -4,6 +4,7 @@ import numpy as np
 # 2D图片处理库
 from matplotlib import pyplot as plt
 
+
 # 匹配模版图片方法；返回截图
 class Selectimg():
 
@@ -11,7 +12,7 @@ class Selectimg():
         self.detaile_img = cv2.imread(img_url)                  # 截图图片地址
         self.Template_img = cv2.imread(template_img_url)    # 模版目标图片地址
 
-    def get_W_H(self):  # 图片长、宽
+    def get_W_H(self):  # 模板-图片长、宽
 
         # 获取模版图片的高度、宽度（单位PX）===========开始
         template = cv2.cvtColor(self.Template_img,cv2.COLOR_BGR2GRAY)
@@ -55,18 +56,18 @@ class Selectimg():
         bottomRight = (topLeft[0] + tw, topLeft[1] + th)
 
         tt = topLeft[1] # 顶部到模版图片上边的距离
-
+        print('上边%s' % tt)
         tb = bottomRight[1] # 顶部到模版图片下边的距离
-
+        print('下边%s' % tb)
         ll = topLeft[0] # 左边到模版图片左边的距离
-
+        print('左边%s' % tb)
         lr = bottomRight[0] # 左边到模版图片右边的距离
+        print('右边%s' % lr)
 
-        img1 = self.detaile_img[tt:tb,ll:lr]    # 根据边距剪切匹配的
-
-        cv2.imshow('image', img1)
-        cv2.waitKey(0)
-        cv2.destroyWindow('image')
+        # img1 = self.detaile_img[tt:tb,ll:lr]    # 根据边距剪切匹配的
+        # cv2.imshow('image', img1)
+        # cv2.waitKey(0)
+        # cv2.destroyWindow('image')
 
     # 保存图片到本地
     def save_img(self, img, name):
@@ -76,10 +77,17 @@ class Selectimg():
 
     # 垂直拼接图片
     def pinjie(self):
+
         # 第一张底部剪切出模版图
+        one_img_url = 'img/template/weixin_1.jpg'
+        two_img_url = 'img/template/weixin_2.jpg'
+
         # 匹配第二张图中坐标位置
+
         # 第二张图剪切最顶部
+
         # 第一张图 + 剪切后的第二张图合成
+
         pass
 
 
@@ -92,5 +100,10 @@ if __name__ == '__main__':
     s = Selectimg(img_url,template_img_url)
 
     print(s.get_X_Y())
+
+    # 第一张图
+
+    # 第二张图
+    # 返回高度
 
 
