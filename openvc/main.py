@@ -31,7 +31,7 @@ class Selectimg():
         # 获取模版图片的高度、宽度（单位PX）===========结束
         return obj
 
-    def get_X_Y(self):  # 目标图片坐标
+    def get_one(self):  # 目标图片坐标
 
         img = cv2.cvtColor(self.detaile_img,cv2.COLOR_BGR2GRAY)         # 将图片转换为灰度图
 
@@ -53,6 +53,7 @@ class Selectimg():
         th = obj.get('heiht')
 
         topLeft = minLoc
+
         bottomRight = (topLeft[0] + tw, topLeft[1] + th)
 
         tt = topLeft[1] # 顶部到模版图片上边的距离
@@ -64,15 +65,50 @@ class Selectimg():
         lr = bottomRight[0] # 左边到模版图片右边的距离
         print('右边%s' % lr)
 
+        # 按边距剪切图片
         # img1 = self.detaile_img[tt:tb,ll:lr]    # 根据边距剪切匹配的
         # cv2.imshow('image', img1)
         # cv2.waitKey(0)
         # cv2.destroyWindow('image')
 
+        # 把找到的匹配模版画圈圈出来
+        cv2.rectangle(self.detaile_img, topLeft, bottomRight, (0, 0, 255), 2)
+        cv2.namedWindow('image', cv2.WINDOW_NORMAL)     # 设置窗口可缩放
+        cv2.imshow('image', self.detaile_img)
+
+        cv2.waitKey(0)  # 按0阻塞
+
+        cv2.destroyWindow('image')
+
+
+    # 多个匹配模版
+    def get_more(self):
+        img_rgb = cv2.imread('img/pinjie/weixin_1.jpg')
+        img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
+        template = cv2.imread('img/pinjie/sec_left.png', 0)
+        w, h = template.shape[::-1]
+        res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
+        threshold = 0.8
+        loc = np.where(res >= threshold)
+        n = 0
+        list = []
+        for pt in zip(*loc[::-1]):
+            cv2.rectangle(img_rgb, pt, (pt[0] + w, pt[1] + h), (0, 0, 255), 2)
+            n = n + 1
+            print(n)
+            if pt[0] not in list:
+                list.append(pt[0])
+        print(len(list))
+
+        cv2.namedWindow('image', cv2.WINDOW_NORMAL)     # 设置窗口可缩放
+        cv2.imshow('image', img_rgb)
+        cv2.waitKey(0)  # 按0阻塞
+        cv2.destroyWindow('image')
+
     # 保存图片到本地
     def save_img(self, img, name):
         save_path = r'./img'                                      # 存储路径配置
-        save_path_file = os.path.join(save_path, name)    # 存储图片到本地文件夹
+        save_path_file = os.path.join(save_path, name)            # 存储图片到本地文件夹
         cv2.imwrite(save_path_file, img)                          # 存储
 
     # 垂直拼接图片
@@ -99,7 +135,8 @@ if __name__ == '__main__':
 
     s = Selectimg(img_url,template_img_url)
 
-    print(s.get_X_Y())
+    # s.get_one()     # 当个匹配
+    s.get_more()  # 多个匹配
 
     # 第一张图
 
