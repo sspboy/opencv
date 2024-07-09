@@ -142,5 +142,60 @@ if __name__ == '__main__':
 
     # 第二张图
     # 返回高度
+    # 呵呵哒
+# airtest==1.3.4
+# cached-property==1.5.2
+# certifi==2024.6.2
+# charset-normalizer==3.3.2
+# colorama==0.4.6
+# colored==2.2.4
+# comtypes==1.4.4
+# contourpy==1.2.1
+# cycler==0.12.1
+# decorator==5.1.1
+# Deprecated==1.2.14
+# deprecation==2.1.0
+# facebook-wda==1.4.7
+# ffmpeg-python==0.2.0
+# filelock==3.15.1
+# fonttools==4.53.0
+# future==1.0.0
+# hrpc==1.0.9
+# idna==3.7
+# Jinja2==3.1.4
+# kiwisolver==1.4.5
+# logzero==1.7.0
+# MarkupSafe==2.1.5
+# matplotlib==3.9.0
+# mss==6.1.0
+# numpy==1.26.4
+# opencv-contrib-python==4.6.0.66
+# opencv-python==4.10.0.82
+# packaging==24.1
+# pillow==10.3.0
+# pip==24.1.2
+# pocoui==1.0.94
+# psutil==5.9.8
+# py==1.11.0
+# pyparsing==3.1.2
+# pypiwin32==223
+# python-dateutil==2.9.0.post0
+# pywin32==306
+# pywinauto==0.6.3
+# requests==2.32.3
+# retry==0.9.2
+# setuptools==69.5.1
+# simple-tornado==0.2.2
+# simplejson==3.19.2
+# six==1.16.0
+# tabulate==0.9.0
+# tidevice==0.12.10
+# tornado==6.4.1
+# urllib3==2.2.2
+# websocket-client==0.48.0
+# wheel==0.43.0
+# wrapt==1.16.0
+
+
 
 
