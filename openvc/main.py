@@ -1,6 +1,7 @@
 import numpy as np
-import cv2,os
+import cv2,os,time
 import numpy as np
+
 # 2D图片处理库
 from matplotlib import pyplot as plt
 
@@ -31,7 +32,7 @@ class Selectimg():
         # 获取模版图片的高度、宽度（单位PX）===========结束
         return obj
 
-    def get_one(self):  # 目标图片坐标
+    def get_one(self):  # 匹配单张图片===目标图片坐标
 
         img = cv2.cvtColor(self.detaile_img,cv2.COLOR_BGR2GRAY)         # 将图片转换为灰度图
 
@@ -83,27 +84,95 @@ class Selectimg():
 
     # 多个匹配模版
     def get_more(self):
-        img_rgb = cv2.imread('img/pinjie/weixin_1.jpg')
-        img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-        template = cv2.imread('img/pinjie/sec_left.png', 0)
-        w, h = template.shape[::-1]
-        res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
-        threshold = 0.8
-        loc = np.where(res >= threshold)
-        n = 0
-        list = []
-        for pt in zip(*loc[::-1]):
-            cv2.rectangle(img_rgb, pt, (pt[0] + w, pt[1] + h), (0, 0, 255), 2)
-            n = n + 1
-            print(n)
-            if pt[0] not in list:
-                list.append(pt[0])
-        print(len(list))
-
-        cv2.namedWindow('image', cv2.WINDOW_NORMAL)     # 设置窗口可缩放
+        img_rgb = cv2.imread('img/pinjie/weixin_4.jpg')  # sku图片
+        img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)  #
+        template = cv2.imread('img/pinjie/read_left.png', 0)  # sku模版图片
+        threshold = 0.9
+        dets = s.template(img_gray, template, threshold)
+        for i in dets:
+            print(int(i[0]), int(i[1]), int(i[2]), int(i[3]))
+            cv2.rectangle(img_rgb, (int(i[0]), int(i[1])), (int(i[2]), int(i[3])), (0, 0, 255), 2)
+        cv2.namedWindow('image', cv2.WINDOW_NORMAL)  # 设置窗口可缩放
         cv2.imshow('image', img_rgb)
         cv2.waitKey(0)  # 按0阻塞
         cv2.destroyWindow('image')
+
+    def py_nms(self, dets, thresh):
+        """Pure Python NMS baseline."""
+        # x1、y1、x2、y2、以及score赋值
+        # （x1、y1）（x2、y2）为box的左上和右下角标
+        x1 = dets[:, 0]
+        y1 = dets[:, 1]
+        x2 = dets[:, 2]
+        y2 = dets[:, 3]
+        scores = dets[:, 4]
+
+        # 每一个候选框的面积
+        areas = (x2 - x1 + 1) * (y2 - y1 + 1)
+        # order是按照score降序排序的
+        order = scores.argsort()[::-1]
+        # print("order:",order)
+
+        keep = []
+        while order.size > 0:
+            i = order[0]
+            keep.append(i)
+            # 计算当前概率最大矩形框与其他矩形框的相交框的坐标，会用到numpy的broadcast机制，得到的是向量
+            xx1 = np.maximum(x1[i], x1[order[1:]])
+            yy1 = np.maximum(y1[i], y1[order[1:]])
+            xx2 = np.minimum(x2[i], x2[order[1:]])
+            yy2 = np.minimum(y2[i], y2[order[1:]])
+
+            # 计算相交框的面积,注意矩形框不相交时w或h算出来会是负数，用0代替
+            w = np.maximum(0.0, xx2 - xx1 + 1)
+            h = np.maximum(0.0, yy2 - yy1 + 1)
+            inter = w * h
+            # 计算重叠度IOU：重叠面积/（面积1+面积2-重叠面积）
+            ovr = inter / (areas[i] + areas[order[1:]] - inter)
+
+            # 找到重叠度不高于阈值的矩形框索引
+            inds = np.where(ovr <= thresh)[0]
+            # print("inds:",inds)
+            # 将order序列更新，由于前面得到的矩形框索引要比矩形框在原order序列中的索引小1，所以要把这个1加回来
+            order = order[inds + 1]
+        return keep
+
+    def template(self, img_gray, template_img, template_threshold):
+        '''
+        img_gray:待检测的灰度图片格式
+        template_img:模板小图，也是灰度化了
+        template_threshold:模板匹配的置信度
+        '''
+
+        h, w = template_img.shape[:2]
+        res = cv2.matchTemplate(img_gray, template_img, cv2.TM_CCOEFF_NORMED)
+        start_time = time.time()
+        loc = np.where(res >= template_threshold)  # 大于模板阈值的目标坐标
+        score = res[res >= template_threshold]  # 大于模板阈值的目标置信度
+        # 将模板数据坐标进行处理成左上角、右下角的格式
+        xmin = np.array(loc[1])
+        ymin = np.array(loc[0])
+        xmax = xmin + w
+        ymax = ymin + h
+        xmin = xmin.reshape(-1, 1)  # 变成n行1列维度
+        xmax = xmax.reshape(-1, 1)  # 变成n行1列维度
+        ymax = ymax.reshape(-1, 1)  # 变成n行1列维度
+        ymin = ymin.reshape(-1, 1)  # 变成n行1列维度
+        score = score.reshape(-1, 1)  # 变成n行1列维度
+        data_hlist = []
+        data_hlist.append(xmin)
+        data_hlist.append(ymin)
+        data_hlist.append(xmax)
+        data_hlist.append(ymax)
+        data_hlist.append(score)
+        data_hstack = np.hstack(data_hlist)  # 将xmin、ymin、xmax、yamx、scores按照列进行拼接
+        thresh = 0.3  # NMS里面的IOU交互比阈值
+
+        keep_dets = self.py_nms(data_hstack, thresh)
+        print("nms time:", time.time() - start_time)  # 打印数据处理到nms运行时间
+        dets = data_hstack[keep_dets]  # 最终的nms获得的矩形框
+        return dets
+
 
     # 保存图片到本地
     def save_img(self, img, name):
@@ -136,13 +205,22 @@ if __name__ == '__main__':
     s = Selectimg(img_url,template_img_url)
 
     # s.get_one()     # 当个匹配
-    s.get_more()  # 多个匹配
+    # s.get_more()    # 多个匹配
 
-    # 第一张图
+    # 最高位置坐标
+    # 最低位置坐标
+    # 向上滑多少距离
 
-    # 第二张图
-    # 返回高度
-    # 呵呵哒
+    # SKU是否全部采集完毕
+
+
+
+
+
+
+
+
+
 # airtest==1.3.4
 # cached-property==1.5.2
 # certifi==2024.6.2
