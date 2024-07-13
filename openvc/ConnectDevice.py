@@ -33,8 +33,6 @@ if __name__ == '__main__':
 
     res = op.connectdevice()
 
-    print(res)
-
     # 等待
     sleep(5)
 
@@ -47,16 +45,20 @@ if __name__ == '__main__':
 
     # 点击 搜索框==>>点击一个链接到详情页面
     res = poco.click([0.225, 0.191])
-    sleep(2)
-
-    # 点击右下角 弹出SKU
-    poco.click([0.75, 0.96])
     sleep(3)
 
-    # 相对定位控件
-    res = poco(name="com.xunmeng.pinduoduo:id/pdd", type="android.support.v7.widget.RecyclerView")
+    # 点击右下角 弹出SKU
+    print('点击右下角')
+    poco.click([0.75, 0.95])
+    sleep(3)
 
-    print(res)
+
+    # 相对定位控件
+    res = poco(name='com.xunmeng.pinduoduo:id/pdd', type="android.support.v7.widget.RecyclerView")
+    # res = poco('root',type="android.widget.FrameLayout")
+    for i in res:
+        print(i.children().attr('desc'))
+
 
 
     # 定位到sku控件
